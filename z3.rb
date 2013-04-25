@@ -89,8 +89,8 @@ module Z3
     attach_function :Z3_mk_bvadd,[:pointer,:pointer,:pointer],:pointer
     attach_function :Z3_mk_bvsub,[:pointer,:pointer,:pointer],:pointer
     attach_function :Z3_mk_bvmul,[:pointer,:pointer,:pointer],:pointer
-    attach_function :Z3_mk_bvudib,[:pointer,:pointer,:pointer],:pointer
-    attach_function :Z3_mk_bvsdib,[:pointer,:pointer,:pointer],:pointer
+    attach_function :Z3_mk_bvudiv,[:pointer,:pointer,:pointer],:pointer
+    attach_function :Z3_mk_bvsdiv,[:pointer,:pointer,:pointer],:pointer
     attach_function :Z3_mk_bvurem,[:pointer,:pointer,:pointer],:pointer
     attach_function :Z3_mk_bvsrem,[:pointer,:pointer,:pointer],:pointer
     attach_function :Z3_mk_bvsmod,[:pointer,:pointer,:pointer],:pointer
@@ -164,7 +164,7 @@ module Z3
     attach_function :Z3_solver_get_model,[:pointer,:pointer],:pointer
     attach_function :Z3_solver_get_proof,[:pointer,:pointer],:pointer
     attach_function :Z3_solver_get_unsat_core,[:pointer,:pointer],:pointer
-    attach_function :Z3_solver_get_reason_unkown,[:pointer,:pointer],:string
+    attach_function :Z3_solver_get_reason_unknown,[:pointer,:pointer],:string
     attach_function :Z3_solver_get_statistics,[:pointer,:pointer],:pointer
     attach_function :Z3_solver_to_string,[:pointer,:pointer],:string
 
@@ -175,6 +175,5 @@ module Z3
 
     #Debugging
     attach_function :Z3_context_to_string,[:pointer],:string
-
 end
 
