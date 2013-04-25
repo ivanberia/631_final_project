@@ -7,29 +7,28 @@ class ProxyClass
 		# is this important?
 		@type = actualVal.class
 	end
-
+	
 	def method_missing(name, *args)
 		# intercept the method name and args
-		puts "method #{name} missing! args were: #{args}"
+		puts "method '#{name}' missing! args were: #{args}"
 		
-		# pass them on to the original thing
+		# at this point we collect the info about the thing and do a thing and z3 things
+
+		# if a ProxyClass object is an arg, use the value of it as the arg
+		for i in 0..args.length
+			if args[i].instance_of? ProxyClass
+				args[i] = args[i].instance_variable_get('@val')
+			end
+		end
+		
+		# pass them on to the original function call
 		@val.send(name, *args)
 	end
 end
 
-class Testing
-	def hello()
-		puts "hi testing"
-	end
-	def argfun(woo)
-		puts "now for an arg: #{woo}"
-	end
-end
-
-# this works
-t = ProxyClass.new(Testing.new)
-t.hello()
-t.argfun(42)
-
-t2 = ProxyClass.new(37)
-t2.to_f()
+# some testing examples
+a = ProxyClass.new(10)
+b = ProxyClass.new(5)
+puts a+b
+puts a / b
+puts a
