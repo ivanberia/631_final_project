@@ -1,9 +1,9 @@
 load "ProxyClass.rb"
 
 # some testing examples
-a = ProxyClass.new("a", 10)
-b = ProxyClass.new("b", 5)
-c = ProxyClass.new("c", 2)
+a = ProxyClass.new(10)
+b = ProxyClass.new(5)
+c = ProxyClass.new(2)
 print "a = 10, b = 5\n\n"
 print "a = ", a, "\n\n"
 print "a+b = ", a+b, "\n\n"
@@ -48,7 +48,7 @@ ttvvaarr2 = TestClass.new(intvar)
 
 # FixnumProxy testing
 
-x = FixnumProxy.new('x',5)
+x = FixnumProxy.new(5)
 y = 3
 z = x + y
 Z3.printContext()

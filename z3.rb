@@ -3,6 +3,7 @@ require 'ffi'
 module Z3
 	extend FFI::Library
 	ffi_lib "/usr/lib/libz3.so"
+	#ffi_lib "C:\\z3-4.3.0-x64\\z3-4.3.0-x64\\bin\\libz3.dll"
 
 	#Int for unique symbols
 	@@sym = 0

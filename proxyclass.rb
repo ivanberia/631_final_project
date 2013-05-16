@@ -6,89 +6,83 @@ class ProxyClass
 	
 	# list of Z3 symbols
 	@@symbols = Hash.new
+	@@ctx = Z3.getCtx()
+	@@solver = Z3_mk_solver(@@ctx)
 	
 	def self.assert_aux(var1, var2)
+		Z3_solver_inc_ref(Z3.getCtx(), @@solver)
+		
 		val1 = var1
 		if var1.is_a? ProxyClass
 			puts "arg is a proxy"
 			val1 = var1.instance_variable_get("@val")
+			zvar1 = var1.instance_variable_get("@sym")
+		else
+			# todo: generalize
+			zvar1 = z3IntLiteral(va12)
 		end
 		
 		val2 = var2
 		if var2.is_a? ProxyClass
 			puts "arg2 is a proxy"
 			val2 = var2.instance_variable_get("@val")
+			zvar2 = mk_int_var(@@ctx, "var2")
+		else
+			zvar2 = z3IntLiteral(val2)
 		end
-		
-		return [val1, val2]
+				
+		return [val1, zvar1, val2, var2]
+	end
+	
+	def self.printAssertResults(zeqn)
+		puts "Scopes:", Z3.Z3_solver_get_num_scopes(@@ctx, @@solver)
+		#puts "AST:", Z3_ast_to_string(@@ctx, zeqn)
+		result = Z3.Z3_solver_check(@@ctx, @@solver)
+		puts "Result:", result
+		puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
 	end
 	
 	def self.assert_equal(var1, var2)
-		puts "asserting equal hi sup"
-		val1, val2 = self.assert_aux(var1, var2)
+		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
 		
-		puts "asserting equal: ", val1 == val2
+		zeqn = Z3_mk_eq(@@ctx, zvar1, zvar2)
+		#Z3_solver_push(ctx, solver)
+		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
+		
+		self.printAssertResults(zeqn)
 		return (val1 == val2)
 	end
 	
-	def self.assert_lessthan(var1, var2)
-		val1, val2 = self.assert_aux(var1, var2)
-		
+	def self.assert_less_than(var1, var2)
+		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
+		zeqn = Z3_mk_lt(@@ctx, zvar1, zvar2)
+		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
+		self.printAssertResults(zeqn)
 		return (val1 < val2)
 	end
 	
-	def self.assert(varstr)
-		# varstr is some boolean expression with whitespace between variables ie "a < 3"
-		# important assumption that there are max two variables and /only/ comparison operators being used in assert
-		vararr = varstr.split()
-		print vararr
-		# create Z3 solver
-		#solver = Z3_mk_solver(context)
-		
-		# possible expressions: "<" "==" ">" "<=" ">="
-		# check if any symbols in varstr and replace accordingly?
-		operators = ["==", "!=", "<", "<=", ">", ">="]
-		theOp = nil
-		for op in operators
-			if vararr.member? op
-				# this operator is in the string
-				theOp = op
-			end
-		end
-		
-		sym1 = nil
-		sym2 = nil
-		for sy in @@symbols.keys
-			idx = vararr.index(sy)
-			if idx != nil
-				if idx == 0
-					sym1 = sy
-				else
-					sym2 = sy
-				end
-			end
-		end
-		
-		# actually have the solver solve things
-		#intz3 = Z3_solver_check(pointer, pointer)
-		
-		infostr = "for str '#{varstr}', operator = #{theOp}, symbols = "
-		evalstr = varstr
-		
-		if sym1 != nil
-			val1 = @@symbols[sym1]
-			infostr += "#{sym1}=#{val1}, "
-			evalstr = evalstr.sub(sym1, val1.to_s)
-		end
-		
-		if sym2 != nil
-			val2 = @@symbols[sym2]
-			infostr += "#{sym2}=#{val2}"
-			evalstr = evalstr.sub(sym2, val2.to_s)
-		end
-		puts infostr + "\n"
-		result = eval(evalstr)
-		puts "result: #{result}"
+	def self.assert_less_than_or_equal(var1, var2)
+		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
+		zeqn = Z3_mk_le(@@ctx, zvar1, zvar2)
+		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
+		self.printAssertResults(zeqn)
+		return (val1 =< val2)
+	end
+	
+	def self.assert_greater_than(var1, var2)
+		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
+		zeqn = Z3_mk_gt(@@ctx, zvar1, zvar2)
+		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
+		self.printAssertResults(zeqn)
+		return (val1 > val2)	
+	end
+	
+	def self.assert_greater_than_or_equal(var1, var2)
+		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
+		zeqn = Z3_mk_ge(@@ctx, zvar1, zvar2)
+		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
+		self.printAssertResults(zeqn)
+		return (val1 >= val2)	
 	end
 	
 	def initialize(name, actualVal)
@@ -103,26 +97,10 @@ class ProxyClass
 		Z3.initContext()
 	end
 	
-	def <(arg)
-		print "catching lt, self is ", @val, ", arg is ", arg, "\n"
-		v = @val
-		a = arg
-		if arg.is_a? self.class
-			puts "arg is a proxy"
-			a = arg.instance_variable_get("@val")
-		end
-		boolval = v < a
-		
-		puts "checkpt"
-		
-		puts @val < arg
-	end
-	
 	def coerce(stg)
 		puts "proxy #{@val} is being coerced"
+		# todo: get originating call? (is this possible?)
 		[stg, @val]
-		# what is calling this though and for what method
-		# http://stackoverflow.com/questions/2799571/in-ruby-how-does-coerce-actually-work
 	end
 	
 	def method_missing(name, *args)
@@ -182,21 +160,4 @@ class FixnumProxy < ProxyClass
 		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
 		@val.send(name, *args)
 	end
-end
-
-# does not work!
-module BoolProxy
-	def self.initialize(arg1, arg2)
-		puts "boolproxy init"
-		@arg1 = arg1
-		@arg2 = arg2
-	end
-end
-
-class TrueClass
-	extend BoolProxy
-end
-
-class FalseClass
-	include BoolProxy
 end
