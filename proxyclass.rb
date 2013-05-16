@@ -1,5 +1,5 @@
-#load "z3.rb"
-#include Z3
+load "z3.rb"
+include Z3
 
 class ProxyClass
 	attr_reader :val,:type,:sym,:name,:methods
@@ -66,7 +66,7 @@ class ProxyClass
 		zeqn = Z3_mk_le(@@ctx, zvar1, zvar2)
 		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
 		self.printAssertResults(zeqn)
-		return (val1 =< val2)
+		return (val1 <= val2)
 	end
 	
 	def self.assert_greater_than(var1, var2)
