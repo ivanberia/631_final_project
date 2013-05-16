@@ -39,14 +39,29 @@ class ProxyClass
 		#puts "AST:", Z3_ast_to_string(@@ctx, zeqn)
 		result = Z3.Z3_solver_check(@@ctx, @@solver)
 		puts "Result:", result
-		puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
+		# 1  = true, -1 = false
+		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
+		boolresult = (r==1) ? true : false
+		if not boolresult
+			# todo: print a more helpful message
+			raise 'Assertion failed'
+		end
 	end
 	
 	def self.assert_equal(var1, var2)
 		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
 		
 		zeqn = Z3_mk_eq(@@ctx, zvar1, zvar2)
-		#Z3_solver_push(ctx, solver)
+		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
+		
+		self.printAssertResults(zeqn)
+		return (val1 == val2)
+	end
+
+	def self.assert_not_equal(var1, var2)
+		val1, zvar1, val2, zvar2 = self.assert_aux(var1, var2)
+		
+		zeqn = Z3_mk_not(@@ctx, Z3_mk_eq(@@ctx, zvar1, zvar2))
 		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
 		
 		self.printAssertResults(zeqn)
