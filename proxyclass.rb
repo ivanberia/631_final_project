@@ -85,9 +85,8 @@ class ProxyClass
 		return (val1 >= val2)	
 	end
 	
-	def initialize(name, actualVal)
+	def initialize(actualVal)
 		@val = actualVal
-		@name = name
 		
 		# create symbol here
 		sym = actualVal
