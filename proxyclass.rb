@@ -19,7 +19,7 @@ class ProxyClass
 			zvar1 = var1.instance_variable_get("@sym")
 		else
 			# todo: generalize
-			zvar1 = z3IntLiteral(va12)
+			zvar1 = z3IntLiteral(val1)
 		end
 		
 		val2 = var2
@@ -39,17 +39,7 @@ class ProxyClass
 		#puts "AST:", Z3_ast_to_string(@@ctx, zeqn)
 		result = Z3.Z3_solver_check(@@ctx, @@solver)
 		puts "Result:", result
-<<<<<<< HEAD
 		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
-=======
-		# 1  = true, -1 = false
-		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
-		boolresult = (r==1) ? true : false
-		if not boolresult
-			# todo: print a more helpful message
-			raise 'Assertion failed'
-		end
->>>>>>> 0d62e7f1cf9c234aca25e93827d66ec92b29e589
 	end
 	
 	def self.assert_equal(var1, var2)
@@ -166,6 +156,25 @@ class FixnumProxy < ProxyClass
 	@@methods = {:+ => [:Z3_mk_add,true],
 				:* => [:Z3_mk_mul,true],
 				:- => [:Z3_mk_sub,true]
+				}
+
+	def initialize(actualVal)
+		super
+		@sym = Z3.z3IntVar()
+	end
+	
+	def method_missing(name, *args)
+		super
+		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
+		@val.send(name, *args)
+	end
+end
+
+class BooleanProxy < ProxyClass
+	@@methods = {:& => [:Z3_mk_and,true],
+				:| => [:Z3_mk_or,true],
+				:and => [:Z3_mk_and,true],
+				:or => [:Z3_mk_or,true]
 				}
 
 	def initialize(actualVal)
