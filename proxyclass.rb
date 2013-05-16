@@ -26,12 +26,12 @@ class ProxyClass
 		if var2.is_a? ProxyClass
 			puts "arg2 is a proxy"
 			val2 = var2.instance_variable_get("@val")
-			zvar2 = mk_int_var(@@ctx, "var2")
+			zvar2 = var2.instance_variable_get("@sym")
 		else
 			zvar2 = z3IntLiteral(val2)
 		end
 				
-		return [val1, zvar1, val2, var2]
+		return [val1, zvar1, val2, zvar2]
 	end
 	
 	def self.printAssertResults(zeqn)
@@ -39,7 +39,7 @@ class ProxyClass
 		#puts "AST:", Z3_ast_to_string(@@ctx, zeqn)
 		result = Z3.Z3_solver_check(@@ctx, @@solver)
 		puts "Result:", result
-		puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
+		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
 	end
 	
 	def self.assert_equal(var1, var2)

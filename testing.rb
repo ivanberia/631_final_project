@@ -1,4 +1,4 @@
-load "ProxyClass.rb"
+load "proxyclass.rb"
 
 # basic testing examples
 a = FixnumProxy.new(10)
@@ -16,22 +16,27 @@ puts a + b + c
 
 puts a < 3
 puts a < b
-ProxyClass.assert_equal(a, 3)
+#ProxyClass.assert_equal(a, 3)
+#print "mooooooo\n"
 
 # true
 puts ProxyClass.assert_less_than(a, 15)
+#print "oink oink\n"
 
 # false
-puts ProxyClass.assert_greater_than_or_equal(a, 15)
+#puts ProxyClass.assert_greater_than_or_equal(a, 15)
 
 # false
+#print "yoyoyo\n"
 puts ProxyClass.assert_equal(b, c)
 
 puts "---------------------------"
 
 # FixnumProxy testing
 
+#print "meow\n"
 x = FixnumProxy.new(5)
 y = 3
 z = x + y
 Z3.printContext()
+#print 'yo'
