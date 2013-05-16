@@ -41,6 +41,9 @@ def mainProxied(dd, dv)
 	# similarly, this should be false
 	puts "remainder >= divisor? (expect: FALSE)", ProxyClass.assert_greater_than_or_equal(remainder, divisor)
 	
+	# divisor should not be zero
+	puts "divisor != 0? (expect: TRUE)", ProxyClass.assert_not_equal(divisor, 0)
+	
 	return quotient, remainder
 end
 
