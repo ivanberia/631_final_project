@@ -6,7 +6,7 @@ module Z3
 	#ffi_lib "C:\\z3-4.3.0-x64\\z3-4.3.0-x64\\bin\\libz3.dll"
 
 	#Int for unique symbols
-	@@sym = 0
+	@@uid = 0
 
 	#Context
 	@@ctx = nil
@@ -199,6 +199,7 @@ module Z3
 	end
 
 	def getCtx()
+		initContext()
 		return @@ctx
 	end
 
@@ -214,8 +215,9 @@ module Z3
 		end
 	end
 
-	def z3IntVar(name)
-		return Z3_mk_const(@@ctx,Z3_mk_string_symbol(@@ctx,name),Z3_mk_int_sort(@@ctx))
+	def z3IntVar()
+		@@uid += 1
+		return Z3_mk_const(@@ctx,Z3_mk_string_symbol(@@ctx,@@uid.to_s),Z3_mk_int_sort(@@ctx))
 	end
 	
 	def z3Array(arr)
