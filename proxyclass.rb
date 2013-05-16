@@ -1,5 +1,5 @@
-#load "z3.rb"
-#include Z3
+load "z3.rb"
+include Z3
 
 class ProxyClass
 	attr_reader :val,:type,:sym,:name,:methods
@@ -66,7 +66,7 @@ class ProxyClass
 		zeqn = Z3_mk_le(@@ctx, zvar1, zvar2)
 		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
 		self.printAssertResults(zeqn)
-		return (val1 =< val2)
+		return (val1 <= val2)
 	end
 	
 	def self.assert_greater_than(var1, var2)
@@ -85,13 +85,12 @@ class ProxyClass
 		return (val1 >= val2)	
 	end
 	
-	def initialize(name, actualVal)
+	def initialize(actualVal)
 		@val = actualVal
-		@name = name
 		
 		# create symbol here
 		sym = actualVal
-		@@symbols[name] = @val
+		#@@symbols[name] = @val
 		
 		@type = actualVal.class
 		Z3.initContext()
@@ -150,9 +149,9 @@ class FixnumProxy < ProxyClass
 				:- => [:Z3_mk_sub,true]
 				}
 
-	def initialize(varName,actualVal)
+	def initialize(actualVal)
 		super
-		@sym = Z3.z3IntVar(@name)
+		@sym = Z3.z3IntVar()
 	end
 	
 	def method_missing(name, *args)
