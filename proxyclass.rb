@@ -19,7 +19,7 @@ class ProxyClass
 			zvar1 = var1.instance_variable_get("@sym")
 		else
 			# todo: generalize
-			zvar1 = z3IntLiteral(va12)
+			zvar1 = z3IntLiteral(val1)
 		end
 		
 		val2 = var2
@@ -38,10 +38,10 @@ class ProxyClass
 		puts "Scopes:", Z3.Z3_solver_get_num_scopes(@@ctx, @@solver)
 		#puts "AST:", Z3_ast_to_string(@@ctx, zeqn)
 		result = Z3.Z3_solver_check(@@ctx, @@solver)
-		puts "Result:", result
 		# 1  = true, -1 = false
-		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
 		boolresult = (r==1) ? true : false
+		puts "Result: #{result} (#{boolresult})"
+		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
 		if not boolresult
 			# todo: print a more helpful message
 			raise 'Assertion failed'
@@ -65,7 +65,7 @@ class ProxyClass
 		Z3.Z3_solver_assert(@@ctx, @@solver, zeqn)
 		
 		self.printAssertResults(zeqn)
-		return (val1 == val2)
+		return (val1 != val2)
 	end
 	
 	def self.assert_less_than(var1, var2)
