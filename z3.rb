@@ -219,7 +219,25 @@ module Z3
 		@@uid += 1
 		return Z3_mk_const(@@ctx,Z3_mk_string_symbol(@@ctx,@@uid.to_s),Z3_mk_int_sort(@@ctx))
 	end
+
+	def z3BoolLiteral(x)
+		unless x.is_a? FFI::Pointer
+			if x
+				return Z3_mk_true(@@ctx)
+			else
+				return Z3_mk_false(@@ctx)
+			end
+			return Z3_mk_int(@@ctx,x,Z3_mk_int_sort(@@ctx)) if x.is_a? Fixnum
+		else
+			return x
+		end
+	end
 	
+	def z3IntVar()
+		@@uid += 1
+		return Z3_mk_const(@@ctx,Z3_mk_string_symbol(@@ctx,@@uid.to_s),Z3_mk_bool_sort(@@ctx))
+	end
+
 	def z3Array(arr)
 		out = FFI::MemoryPointer.new(:pointer,arr.length)
 		out.write_array_of_pointer(arr)

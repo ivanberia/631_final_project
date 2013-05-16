@@ -137,14 +137,18 @@ class ProxyClass
 	# func is a symbol, array_bool specifies if parameters need to be in an
 	# array for Z3, a is the other parameter to the operation
 	def z3Call(func,array_bool,x)
-		if x
+		if x != nil
 			case x
 				when ProxyClass
 					x_sym = x.sym
-				else
-					# Create Z3 constant for x depending on type
-					# ONLY INT IMPLEMENTED NOW, NO CHECKS FOR TYPE
+				when Fixnum
 					x_sym = Z3.z3IntLiteral(x)
+				when TrueClass
+					x_sym = Z3.z3BoolLiteral(true)
+				when FalseClass
+					x_sym = Z3.z3BoolLiteral(false)
+				else
+					puts "Unknown/unsupported type"
 			end
 			if array_bool
 				arr = Z3.z3Array([@sym,x_sym])
@@ -171,12 +175,11 @@ class FixnumProxy < ProxyClass
 	
 	def method_missing(name, *args)
 		super
-		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
-		@val.send(name, *args)
+		self.z3Call(@@methods[name][0],@@methods[name][1],*args) 
 	end
 end
 
-class BooleanProxy < ProxyClass
+class BoolProxy < ProxyClass
 	@@methods = {:& => [:Z3_mk_and,true],
 				:| => [:Z3_mk_or,true],
 				:and => [:Z3_mk_and,true],
@@ -191,6 +194,5 @@ class BooleanProxy < ProxyClass
 	def method_missing(name, *args)
 		super
 		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
-		@val.send(name, *args)
 	end
 end
