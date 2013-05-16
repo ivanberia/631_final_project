@@ -4,6 +4,12 @@ module Z3
 	extend FFI::Library
 	ffi_lib "/usr/lib/libz3.so"
 
+	#Int for unique symbols
+	@@sym = 0
+
+	#Context
+	@@ctx = nil
+
 	#Misc
 	attach_function :Z3_get_version,[:pointer,:pointer,:pointer,:pointer],:void
 	attach_function :Z3_reset_memory,[],:void
@@ -140,6 +146,14 @@ module Z3
 	attach_function :Z3_mk_map,[:pointer,:pointer,:int,:pointer],:pointer
 	attach_function :Z3_mk_array_default,[:pointer,:pointer,:pointer],:pointer
 
+	#Numerals
+	attach_function :Z3_mk_numeral,[:pointer,:string,:pointer],:pointer
+	attach_function :Z3_mk_real,[:pointer,:int,:int],:pointer
+	attach_function :Z3_mk_int,[:pointer,:int,:pointer],:pointer
+	attach_function :Z3_mk_unsigned_int,[:pointer,:int,:pointer],:pointer
+	attach_function :Z3_mk_int64,[:pointer,:int,:pointer],:pointer
+	attach_function :Z3_mk_unsigned_int64,[:pointer,:int,:pointer],:pointer
+
 	#Solvers
 	attach_function :Z3_mk_solver,[:pointer],:pointer
 	attach_function :Z3_mk_simple_solver,[:pointer],:pointer
@@ -175,5 +189,38 @@ module Z3
 
 	#Debugging
 	attach_function :Z3_context_to_string,[:pointer],:string
+
+	def initContext()
+		if @@ctx == nil
+			cfg = Z3_mk_config()
+			@@ctx = Z3_mk_context(cfg)
+		end
+	end
+
+	def getCtx()
+		return @@ctx
+	end
+
+	def printContext()
+		puts Z3_context_to_string(@@ctx)
+	end
+
+	def z3IntLiteral(x)
+		unless x.is_a? FFI::Pointer
+			return Z3_mk_int(@@ctx,x,Z3_mk_int_sort(@@ctx)) if x.is_a? Fixnum
+		else
+			return x
+		end
+	end
+
+	def z3IntVar(name)
+		return Z3_mk_const(@@ctx,Z3_mk_string_symbol(@@ctx,name),Z3_mk_int_sort(@@ctx))
+	end
+	
+	def z3Array(arr)
+		out = FFI::MemoryPointer.new(:pointer,arr.length)
+		out.write_array_of_pointer(arr)
+		return out
+	end
 end
 

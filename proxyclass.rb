@@ -1,8 +1,8 @@
 #load "z3.rb"
+#include Z3
 
 class ProxyClass
-	# Z3 context (todo)
-	@@context = nil
+	attr_reader :val,:type,:sym,:name,:methods
 	
 	# list of Z3 symbols
 	@@symbols = Hash.new
@@ -100,6 +100,7 @@ class ProxyClass
 		@@symbols[name] = @val
 		
 		@type = actualVal.class
+		Z3.initContext()
 	end
 	
 	def <(arg)
@@ -115,12 +116,6 @@ class ProxyClass
 		puts "checkpt"
 		
 		puts @val < arg
-		
-		#if boolval
-		#	return TrueClassProxy(v, a)
-		#else
-		#	return FalseClassProxy(v, a)
-		#end
 	end
 	
 	def coerce(stg)
@@ -144,6 +139,47 @@ class ProxyClass
 		end
 		
 		# pass them on to the original function call
+		@val.send(name, *args)
+	end
+
+	# func is a symbol, array_bool specifies if parameters need to be in an
+	# array for Z3, a is the other parameter to the operation
+	def z3Call(func,array_bool,x)
+		if x
+			case x
+				when ProxyClass
+					x_sym = x.sym
+				else
+					# Create Z3 constant for x depending on type
+					# ONLY INT IMPLEMENTED NOW, NO CHECKS FOR TYPE
+					x_sym = Z3.z3IntLiteral(x)
+			end
+			if array_bool
+				arr = Z3.z3Array([@sym,x_sym])
+				send(func,Z3.getCtx(),2,arr)
+			else
+				send(func,Z3.getCtx(),@sym,x_sym)
+			end
+		else
+			send(func,Z3.getCtx(),@sym)
+		end
+	end
+end
+
+class FixnumProxy < ProxyClass
+	@@methods = {:+ => [:Z3_mk_add,true],
+				:* => [:Z3_mk_mul,true],
+				:- => [:Z3_mk_sub,true]
+				}
+
+	def initialize(varName,actualVal)
+		super
+		@sym = Z3.z3IntVar(@name)
+	end
+	
+	def method_missing(name, *args)
+		super
+		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
 		@val.send(name, *args)
 	end
 end

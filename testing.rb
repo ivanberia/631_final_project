@@ -45,3 +45,10 @@ tvar = TestClass.new(23)
 intvar = 10
 ttvvaarr = TestClass.new(intvar)
 ttvvaarr2 = TestClass.new(intvar)
+
+# FixnumProxy testing
+
+x = FixnumProxy.new('x',5)
+y = 3
+z = x + y
+Z3.printContext()
