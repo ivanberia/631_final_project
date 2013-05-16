@@ -1,4 +1,4 @@
-load "ProxyClass.rb"
+load "proxyclass.rb"
 
 # basic testing examples
 a = FixnumProxy.new(10)
