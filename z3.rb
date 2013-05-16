@@ -233,7 +233,7 @@ module Z3
 		end
 	end
 	
-	def z3IntVar()
+	def z3BoolVar()
 		@@uid += 1
 		return Z3_mk_const(@@ctx,Z3_mk_string_symbol(@@ctx,@@uid.to_s),Z3_mk_bool_sort(@@ctx))
 	end
