@@ -25,7 +25,17 @@ Here is an abstract
 \end{abstract}
 
 \section{Introduction}
-Motivation stuff goes here \cite{typeinf} \cite{rails}
+Security has become a major concern in application development in recent years.  Insecure software has been exploited and leveraged to steal large amount of money or information from various private and public organizations.  It has also been used to stop the operation of various websites or companies, resulting in large losses in revenue and damage to public image.\\
+
+We are proposing an implementation of dynamic symbolic execution to help mitigate these vulnerabilities within Ruby applications.  This approach would allow developers to confirm that values are guaranteed to be within a specified acceptable range or that certain values are unaffected by other input values during the execution of the program.\\
+
+Symbolic execution is a method of finding all possible outputs and paths of a program.  This is done by treating each variable as a symbolic variable that is a function of other variables in the program instead of a single value.  This allows a developer to confirm that a value will always be within a certain acceptable range, that a value will never influence another variable, or that a program will never execute certain code or run in an unintended way.  Symbolic execution will follow every single possible branch of a progra and run it to completion or failure.  Clearly, this approach can have a number of large problems resulting from complexity in the program and the exponential growth of execution paths at each branch.\\
+
+Symbolic execution for security verification in Ruby software is nothing new \cite{rails}.  While it has been done before, we could not find one that followed our exact approach of implementing symbolic execution in Ruby to test for potential errors or assertion failures.\\
+
+Our approach is to create a symbolic variable for a couple specified variables and then store this symbolic form along with the real value.  We will not follow every single path that is possible in the program, but will instead let it run as normal.  We will keep track of all operations done on the symbolic variables throughout the execution.  The user will also be able to add assertions, and as the program runs, our software will check all possible values of the symoblic variables against the assertions to verify that they will be satisfied.  While this approach is not as rigorous as true symbolic execution, it has many advantages.  This approach will run much faster and will be able to run to completion whenever the program can, without the performance problems caused to normal symbolic executors by loop structures along the way.  This apporach is also much faster and easier to implement.  It also can be implemented within Ruby instead of having to create a new interpreter or very large library to be able to implement this with Ruby.\\
+
+While not identical, our approach to implement this in Ruby was similar to that of \cite{typeinf} in that we used a proxy system act a an intermediary between the program and the variables.  This allowed us to store the true variables as well as the symbolic variables and make similar operations on each as the code executed.\\
 
 \section{Methodology}
 methodology junk goes here
@@ -56,7 +66,7 @@ Specifically, \texttt{method\_missing} is called on the object if the object doe
 When an object that has been passed as an argument to another method which requires a specific type, but the object does not have a defined conversion to that type, the \texttt{coerce} method is called on that object.  If no suitable conversion is found, an exception will be raised.\\
 
 \subsection{Z3}
-stuff about z3
+Z3 is a SMT solver developed and released by Microsoft.  We use the Z3 programming API check satisfiability of the environment given a set of symbolic variables and contstraints.  This allows us to check whether or not it is possible for an assertion to fail at a certain point within a program.
 
 \section{Implementation}
 There are two main components of our implementation: the Z3 API and the proxy class for variables.\\
