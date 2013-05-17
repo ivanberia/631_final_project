@@ -38,7 +38,8 @@ Our approach is to create a symbolic variable for a couple specified variables a
 While not identical, our approach to implement this in Ruby was similar to that of \cite{typeinf} in that we used a proxy system act a an intermediary between the program and the variables.  This allowed us to store the true variables as well as the symbolic variables and make similar operations on each as the code executed.\\
 
 \section{Methodology}
-methodology junk goes here
+%TODO
+intro stuff
 
 \subsection{Proxies}
 We use proxies as a wrapper around objects to bundle the actual value and symbolic variable during execution.  Typically, a variable name points to its value in working memory as shown in Figure \ref{pointer:1}.  We add an additional layer with the proxy wrapper, as in Figure \ref{pointer:2}.  The program accesses only the proxy directly, which contains a reference to the variable, which then points to the actual value.
@@ -69,7 +70,7 @@ When an object that has been passed as an argument to another method which requi
 Z3 is a SMT solver developed and released by Microsoft.  We use the Z3 programming API check satisfiability of the environment given a set of symbolic variables and contstraints.  This allows us to check whether or not it is possible for an assertion to fail at a certain point within a program.
 
 \section{Implementation}
-There are two main components of our implementation: the Z3 API and the proxy class for variables.\\
+There are two main components of our implementation: the Z3 API and the proxy class for variables.  The Z3 API is the interface to the Z3 SMT solver, which is used by the proxy class to create, manipulate, and query about symbolic variables.\\
 
 \subsection{Z3-Ruby API}
 APIs for Z3 are publicly available for C, C++, .NET, and Python \textemdash but not Ruby.  Instead, we wrote an interface for the Z3 C bindings in Ruby, using the FFI library.  The FFI library is used to create a mapping from the C functions and alias Ruby functions to that asfj
@@ -78,7 +79,9 @@ APIs for Z3 are publicly available for C, C++, .NET, and Python \textemdash but 
 We created a general wrapper for proxied variables and two derived classes specific to \texttt{Fixnum}s and \texttt{Boolean}s.  The proxy class allows the programmer to initialize proxied variables with a particular value.  Methods of the original variable can be called and return values normally, and proxied variables passed as arguments to functions will be coerced into their original type.  However, if the proxied variable is a supported class, when calling a method it will first make a call to Z3 with a symbolic variable and the appropriate method and arguments.  Any arguments which are also proxied variables will be replaced with the corresponding symbolic variable; otherwise, arguments will be treated as a literal.  The burden is hence on the programmer to ensure that all pertinent variables have been enclosed in a proxy wrapper.\\
 
 \section{Assessment}
-using short ruby programs, see appendix
+We verified our implementation on several different small test programs.\\
+
+One goal of our implementation was simplicity of use.  The example provided in Appendix \ref{appdx1} is typical and shows a direct comparison between the original program and the modifications required to use proxied variables.  The only modification to the actual variables is changing the integer inputs to be wrapped in \texttt{FixnumProxy}s.  The remainder of the program is left as-is and runs normally.  However, we can now insert assertions using the symbolic variables, which will make calls to the Z3 solver and return the result based on the variable's constraints.
 
 \section{Conclusion}
 Summary and Future Work
