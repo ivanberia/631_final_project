@@ -33,13 +33,11 @@ Symbolic execution is a method of finding all possible outputs and paths of a pr
 
 Symbolic execution for security verification in Ruby software is nothing new \cite{rails}.  While it has been done before, we could not find one that followed our exact approach of implementing symbolic execution in Ruby to test for potential errors or assertion failures.\\
 
+\section{Methodology}
 Our approach is to create a symbolic variable for a couple specified variables and then store this symbolic form along with the real value.  We will not follow every single path that is possible in the program, but will instead let it run as normal.  We will keep track of all operations done on the symbolic variables throughout the execution.  The user will also be able to add assertions, and as the program runs, our software will check all possible values of the symoblic variables against the assertions to verify that they will be satisfied.  While this approach is not as rigorous as true symbolic execution, it has many advantages.  This approach will run much faster and will be able to run to completion whenever the program can, without the performance problems caused to normal symbolic executors by loop structures along the way.  This apporach is also much faster and easier to implement.  It also can be implemented within Ruby instead of having to create a new interpreter or very large library to be able to implement this with Ruby.\\
 
 While not identical, our approach to implement this in Ruby was similar to that of \cite{typeinf} in that we used a proxy system act a an intermediary between the program and the variables.  This allowed us to store the true variables as well as the symbolic variables and make similar operations on each as the code executed.\\
 
-\section{Methodology}
-%TODO
-intro stuff
 
 \subsection{Proxies}
 We use proxies as a wrapper around objects to bundle the actual value and symbolic variable during execution.  Typically, a variable name points to its value in working memory as shown in Figure \ref{pointer:1}.  We add an additional layer with the proxy wrapper, as in Figure \ref{pointer:2}.  The program accesses only the proxy directly, which contains a reference to the variable, which then points to the actual value.
