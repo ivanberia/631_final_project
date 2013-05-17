@@ -59,9 +59,13 @@ When an object that has been passed as an argument to another method which requi
 stuff about z3
 
 \section{Implementation}
-There are two main components of our implementation: the Z3 API and the proxy class for variables.
+There are two main components of our implementation: the Z3 API and the proxy class for variables.\\
 
-We have implemented proxy classes for both Ruby Fixnums and Booleans.
+\subsection{Z3-Ruby API}
+APIs for Z3 are publicly available for C, C++, .NET, and Python \textemdash but not Ruby.  Instead, we wrote an interface for the Z3 C bindings in Ruby, using the FFI library.  The FFI library is used to create a mapping from the C functions and alias Ruby functions to that asfj
+
+\subsection{Proxy Classes}
+We created a general wrapper for proxied variables and two derived classes specific to \texttt{Fixnum}s and \texttt{Boolean}s.  The proxy class allows the programmer to initialize proxied variables with a particular value.  Methods of the original variable can be called and return values normally, and proxied variables passed as arguments to functions will be coerced into their original type.  However, if the proxied variable is a supported class, when calling a method it will first make a call to Z3 with a symbolic variable and the appropriate method and arguments.  Any arguments which are also proxied variables will be replaced with the corresponding symbolic variable; otherwise, arguments will be treated as a literal.  The burden is hence on the programmer to ensure that all pertinent variables have been enclosed in a proxy wrapper.\\
 
 \section{Assessment}
 using short ruby programs, see appendix
@@ -80,9 +84,72 @@ B. Ren, J. Toman, T. S. Strickland, J. Foster, ``The Ruby Type Checker,'' in SAC
 \end{thebibliography}
 
 \appendix
+
 \section{Program 1}
+Below is a simple program to perform long division on two integer inputs.  The first method, \texttt{main}, is the original version of the program.  The second method, \texttt{mainProxied}, is the same method, but modified to use proxied variables instead and check the program's output.\\
+
 \begin{verbatim}
-Code goes here
+# takes two inputs (dividend, divisor) and outputs the quotient and remainder
+# version of http://rubyquiz.strd6.com/quizzes/180-long-division
+
+load "proxyclass.rb"
+
+def main(dividend, divisor)
+	quotient = 0
+	remainder = dividend
+	Math.log10(dividend).ceil.downto(0) do |exp|
+		magnitude = 10 ** exp
+		trydiv, rest = dividend.divmod(magnitude)
+		if trydiv >= divisor
+			quotient_digit, remainder = trydiv.divmod(divisor)
+			quotient += quotient_digit * magnitude
+			dividend = (remainder * magnitude + rest)
+			break
+		end
+	end
+	return quotient, remainder
+end
+
+def mainProxied(dd, dv)
+	dividend = FixnumProxy.new(dd)
+	divisor = FixnumProxy.new(dv)
+	quotient = FixnumProxy.new(0)
+	remainder = FixnumProxy.new(dd)
+	Math.log10(dividend.to_f).ceil.downto(0) do |exp|
+		magnitude = 10 ** exp
+		trydiv, rest = dividend.divmod(magnitude)
+		if trydiv >= divisor
+			quotient_digit, remainder = trydiv.divmod(divisor)
+			quotient += quotient_digit * magnitude
+			dividend = (remainder * magnitude + rest)
+			break
+		end
+	end
+	
+	# the remainder should always be less than the divisor
+	puts ProxyClass.assert_less_than(remainder, divisor)
+	
+	# similarly, this should be false
+	puts ProxyClass.assert_greater_than_or_equal(remainder, divisor)
+	
+	# divisor should not be zero
+	puts ProxyClass.assert_not_equal(divisor, 0)
+	
+	return quotient, remainder
+end
+
+# get command-line arguments
+dd = ARGV[0].to_i
+dv = ARGV[1].to_i
+if dv != 0
+	q, r = main(dd, dv)
+	puts "Quotient: #{q}, Remainder: #{r}"
+	
+	q, r = mainProxied(dd, dv)
+	puts "Proxied Quotient: #{q}, Remainder: #{r}"
+else
+	puts "Error: div by zero"
+end
 \end{verbatim}
 
 \end{document}
