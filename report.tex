@@ -84,8 +84,7 @@ We verified our implementation on several different small test programs.\\
 One goal of our implementation was simplicity of use.  The example provided in Appendix \ref{appdx1} is typical and shows a direct comparison between the original program and the modifications required to use proxied variables.  The only modification to the actual variables is changing the integer inputs to be wrapped in \texttt{FixnumProxy}s.  The remainder of the program is left as-is and runs normally.  However, we can now insert assertions using the symbolic variables, which will make calls to the Z3 solver and return the result based on the variable's constraints.
 
 \section{Conclusion}
-Summary and Future Work
-More types of variables
+We presented a dynamic symbolic execution system  that we have implemented in Ruby.  We used Z3 and a proxy system to keep track of symbolic variables throughout the execution of the program and currently can keep track of integers and booleans within this environment.  Future work on this subject would be to add more supported types in Ruby to our implementation.  This would simply require adding mappings from the original methods for the types to the Z3 fucntions that complete the same action for simple types that exist within Z3 as well.  For more complicated types, our plan is to treat a complex object as a set of simple types and then store symbolic copies of these simpler types.\\
 
 \begin{thebibliography}{99}
 \bibitem{rails}
