@@ -175,7 +175,7 @@ class FixnumProxy < ProxyClass
 	
 	def method_missing(name, *args)
 		super
-		self.z3Call(@@methods[name][0],@@methods[name][1],*args) 
+		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
 	end
 end
 
