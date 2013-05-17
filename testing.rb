@@ -12,31 +12,28 @@ print "30/a = ", 30/a, "\n\n" # = 1 because a/a
 print "3 + a = ", 3 + a, "\n\n" # = 20 because a+a
 print "a + 3 = ", a + 3, "\n\n"
 puts " ------------- "
+puts b + c
 puts a + b + c
 
 puts a < 3
 puts a < b
-#ProxyClass.assert_equal(a, 3)
-#print "mooooooo\n"
+ProxyClass.assert_equal(a, 3)
 
 # true
-puts ProxyClass.assert_less_than(a, 15)
-#print "oink oink\n"
+puts ProxyClass.assert_greater_than(c, 15)
+ProxyClass.printUnsatCore()
 
 # false
-#puts ProxyClass.assert_greater_than_or_equal(a, 15)
+puts ProxyClass.assert_greater_than_or_equal(a, 15)
 
 # false
-#print "yoyoyo\n"
 puts ProxyClass.assert_equal(b, c)
 
 puts "---------------------------"
 
-# FixnumProxy testing
+## FixnumProxy testing
 
-#print "meow\n"
 x = FixnumProxy.new(5)
 y = 3
 z = x + y
 Z3.printContext()
-#print 'yo'
