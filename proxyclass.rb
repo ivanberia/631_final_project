@@ -14,7 +14,6 @@ class ProxyClass
 		
 		val1 = var1
 		if var1.is_a? ProxyClass
-			puts "arg is a proxy"
 			val1 = var1.instance_variable_get("@val")
 			zvar1 = var1.instance_variable_get("@sym")
 		else
@@ -24,7 +23,6 @@ class ProxyClass
 		
 		val2 = var2
 		if var2.is_a? ProxyClass
-			puts "arg2 is a proxy"
 			val2 = var2.instance_variable_get("@val")
 			zvar2 = var2.instance_variable_get("@sym")
 		else
@@ -110,7 +108,6 @@ class ProxyClass
 	end
 	
 	def coerce(stg)
-		puts "proxy #{@val} is being coerced"
 		# todo: get originating call? (is this possible?)
 		[stg, @val]
 	end
