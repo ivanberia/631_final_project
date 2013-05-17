@@ -36,15 +36,14 @@ class ProxyClass
 	
 	def self.printAssertResults(zeqn)
 		puts "Scopes:", Z3.Z3_solver_get_num_scopes(@@ctx, @@solver)
-		#puts "AST:", Z3_ast_to_string(@@ctx, zeqn)
 		result = Z3.Z3_solver_check(@@ctx, @@solver)
-		# 1  = true, -1 = false
-		boolresult = (r==1) ? true : false
+		boolresult = (result == 1) ? true : false
 		puts "Result: #{result} (#{boolresult})"
-		#puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
 		if not boolresult
 			# todo: print a more helpful message
 			raise 'Assertion failed'
+		else
+			puts "Model:", Z3.Z3_model_to_string(@@ctx, Z3.Z3_solver_get_model(@@ctx, @@solver))
 		end
 	end
 	
@@ -105,7 +104,6 @@ class ProxyClass
 		
 		# create symbol here
 		sym = actualVal
-		#@@symbols[name] = @val
 		
 		@type = actualVal.class
 		Z3.initContext()
@@ -119,9 +117,7 @@ class ProxyClass
 	
 	def method_missing(name, *args)
 		# intercept the method name and args
-		puts "method '#{name}' missing for proxy #{@val}! args were: #{args}"
-		
-		# at this point we collect the info about the thing and do a thing and z3 things
+		#puts "method '#{name}' missing for proxy #{@val}! args were: #{args}"
 		
 		# if a ProxyClass object is an arg, use the value of it as the arg
 		for i in 0..args.length
@@ -135,7 +131,7 @@ class ProxyClass
 	end
 
 	# func is a symbol, array_bool specifies if parameters need to be in an
-	# array for Z3, a is the other parameter to the operation
+	# array for Z3, x is the other parameter to the operation
 	def z3Call(func,array_bool,x)
 		if x != nil
 			case x
@@ -160,12 +156,24 @@ class ProxyClass
 			send(func,Z3.getCtx(),@sym)
 		end
 	end
+
+	def self.printUnsatCore()
+		Z3.Z3_solver_check(@@ctx,@@solver)
+		unsat = Z3.Z3_solver_get_unsat_core(@@ctx,@@solver)
+		puts Z3.Z3_ast_vector_to_string(@@ctx,unsat)
+	end
+
+	def setSym(x)
+		@sym = x
+	end
 end
 
 class FixnumProxy < ProxyClass
 	@@methods = {:+ => [:Z3_mk_add,true],
 				:* => [:Z3_mk_mul,true],
-				:- => [:Z3_mk_sub,true]
+				:- => [:Z3_mk_sub,true],
+				:/ => [:Z3_mk_div,false],
+				:% => [:Z3_mk_mod,false]
 				}
 
 	def initialize(actualVal)
@@ -174,25 +182,35 @@ class FixnumProxy < ProxyClass
 	end
 	
 	def method_missing(name, *args)
-		super
-		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
+		if @@methods.has_key? name
+			sym = self.z3Call(@@methods[name][0],@@methods[name][1],*args)
+			out = FixnumProxy.new(super)
+			out.setSym(sym)
+			return out
+		end
+		return super
 	end
 end
 
 class BoolProxy < ProxyClass
 	@@methods = {:& => [:Z3_mk_and,true],
 				:| => [:Z3_mk_or,true],
+				:^ => [:Z3_mk_xor,false],
 				:and => [:Z3_mk_and,true],
 				:or => [:Z3_mk_or,true]
 				}
 
 	def initialize(actualVal)
 		super
-		@sym = Z3.z3IntVar()
+		@sym = Z3.z3BoolVar()
 	end
 	
 	def method_missing(name, *args)
-		super
-		self.z3Call(@@methods[name][0],@@methods[name][1],*args) if @@methods.has_key?(name)
+		if @@methods.has_key? name
+			sym = self.z3Call(@@methods[name][0],@@methods[name][1],*args)
+			out = BoolProxy.new(super)
+			out.setSym(sym)
+			return out
+		end
 	end
 end

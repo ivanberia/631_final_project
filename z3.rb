@@ -2,6 +2,7 @@ require 'ffi'
 
 module Z3
 	extend FFI::Library
+	#Put pointer to z3 library here
 	ffi_lib "/usr/lib/libz3.so"
 	#ffi_lib "C:\\z3-4.3.0-x64\\z3-4.3.0-x64\\bin\\libz3.dll"
 
@@ -182,6 +183,11 @@ module Z3
 	attach_function :Z3_solver_get_reason_unknown,[:pointer,:pointer],:string
 	attach_function :Z3_solver_get_statistics,[:pointer,:pointer],:pointer
 	attach_function :Z3_solver_to_string,[:pointer,:pointer],:string
+
+	attach_function :Z3_model_to_string,[:pointer,:pointer],:string
+
+	#AST vectors
+	attach_function :Z3_ast_vector_to_string,[:pointer,:pointer],:string
 
 	#Logging functions
 	attach_function :Z3_open_log,[:string],:int
