@@ -21,7 +21,7 @@ CMSC 631 Final Project}
 \maketitle
 
 \begin{abstract}
-We present a dynamic symbolic executor for Ruby
+We present a dynamic symbolic executor for the scripting language Ruby.  We use a proxy class to wrap variables during execution, and the Z3 SMT solver to find and solve constraints on symbolic variables.  The system was designed to be easy to add to an existing program and has a simple interface for variable creation and assertions.
 \end{abstract}
 
 \section{Introduction}
@@ -29,7 +29,7 @@ Security has become a major concern in application development in recent years. 
 
 We are proposing an implementation of dynamic symbolic execution to help mitigate these vulnerabilities within Ruby applications.  This approach would allow developers to confirm that values are guaranteed to be within a specified acceptable range or that certain values are unaffected by other input values during the execution of the program.\\
 
-Symbolic execution is a method of finding all possible outputs and paths of a program.  This is done by treating each variable as a symbolic variable that is a function of other variables in the program instead of a single value.  This allows a developer to confirm that a value will always be within a certain acceptable range, that a value will never influence another variable, or that a program will never execute certain code or run in an unintended way.  Symbolic execution will follow every single possible branch of a progra and run it to completion or failure.  Clearly, this approach can have a number of large problems resulting from complexity in the program and the exponential growth of execution paths at each branch.\\
+Symbolic execution is a method of finding all possible outputs and paths of a program.  This is done by treating each variable as a symbolic variable that is a function of other variables in the program instead of a single value.  This allows a developer to confirm that a value will always be within a certain acceptable range, that a value will never influence another variable, or that a program will never execute certain code or run in an unintended way.  Symbolic execution will follow every single possible branch of a program and run it to completion or failure.  Clearly, this approach can have a number of large problems resulting from complexity in the program and the exponential growth of execution paths at each branch.\\
 
 Symbolic execution for security verification in Ruby software is nothing new \cite{rails}.  While it has been done before, we could not find one that followed our exact approach of implementing symbolic execution in Ruby to test for potential errors or assertion failures.\\
 
@@ -95,9 +95,10 @@ B. Ren, J. Toman, T. S. Strickland, J. Foster, ``The Ruby Type Checker,'' in SAC
 
 \end{thebibliography}
 
+\newpage
 \appendix
-
 \section{Program 1}
+\label{appdx1}
 Below is a simple program to perform long division on two integer inputs.  The first method, \texttt{main}, is the original version of the program.  The second method, \texttt{mainProxied}, is the same method, but modified to use proxied variables instead and check the program's output.\\
 
 \begin{verbatim}
